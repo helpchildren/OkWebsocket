@@ -31,8 +31,8 @@ public class Config {
     private long reconnectInterval;
     private TimeUnit pingIntervalTimeUnit;
     private long pingInterval;
-
     private long timeoutInterval;
+    private TimeUnit timeoutTimeUnit;
     private boolean debug;
     private boolean isTrustAll;
 
@@ -49,6 +49,7 @@ public class Config {
         this.pingInterval=builder.pingInterval;
         this.pingIntervalTimeUnit=builder.pingIntervalTimeUnit;
         this.timeoutInterval=builder.timeoutInterval;
+        this.timeoutTimeUnit=builder.timeoutTimeUnit;
         this.debug=builder.debug;
         this.isTrustAll=builder.isTrustAll;
     }
@@ -59,13 +60,13 @@ public class Config {
         private SocketFactory socketFactory;
         private SSLSocketFactory sslSocketFactory;
         private HostnameVerifier trustManager;
-        private boolean isAutoReconnect = true;//是否需要自动重连
+        private boolean isAutoReconnect=true;//是否需要自动重连
         private long reconnectInterval=10;//重连间隔时间
         private TimeUnit reconnectIntervalTimeUnit=TimeUnit.SECONDS;// 重连间隔时间单位
-        private boolean isDefaultHeartBeat;//是否使用默认心跳
         private long pingInterval;//心跳间隔时间
         private TimeUnit pingIntervalTimeUnit=TimeUnit.SECONDS;// 心跳间隔时间单位
         private long timeoutInterval=10;//超时时间
+        private TimeUnit timeoutTimeUnit =TimeUnit.SECONDS;// 重连间隔时间单位
         private boolean debug=false;// 是否是开发模式
         private boolean isTrustAll=true;//是否信任所有证书
 
@@ -101,6 +102,10 @@ public class Config {
             return this;
         }
 
+        public Builder reconnectInterval(long reconnectInterval) {
+            return reconnectInterval(reconnectInterval,reconnectIntervalTimeUnit);
+        }
+
         public Builder reconnectInterval(long reconnectInterval, TimeUnit reconnectIntervalTimeUnit) {
             if(reconnectInterval>0) {
                 this.reconnectInterval = reconnectInterval;
@@ -111,16 +116,19 @@ public class Config {
             return this;
         }
 
-        public Builder isDefaultHeartBeat(boolean defaultHeartBeat) {
-            isDefaultHeartBeat = defaultHeartBeat;
+        public Builder isDefaultHeartBeat(boolean isDefaultHeartBeat) {
             if(isDefaultHeartBeat){
                 pingInterval=30;
             }
             return this;
         }
 
+        public Builder pingInterval(long pingInterval) {
+           return pingInterval(pingInterval,pingIntervalTimeUnit);
+        }
+
         public Builder pingInterval(long pingInterval,TimeUnit pingIntervalTimeUnit) {
-            if(pingInterval!=0) {
+            if(pingInterval>0) {
                 this.pingInterval = pingInterval;
             }
             if(pingIntervalTimeUnit!=null) {
@@ -129,8 +137,18 @@ public class Config {
             return this;
         }
 
-        public void timeout(long timeout) {
-            this.timeoutInterval=timeout;
+        public Builder timeoutInterval(long timeoutInterval) {
+            return timeoutInterval(timeoutInterval, timeoutTimeUnit);
+        }
+
+        public Builder timeoutInterval(long timeoutInterval,TimeUnit timeoutUnit) {
+            if(timeoutInterval>0) {
+                this.timeoutInterval= timeoutInterval;
+            }
+            if(timeoutUnit!=null) {
+                this.timeoutTimeUnit = timeoutUnit;
+            }
+            return this;
         }
 
         public Builder debug(boolean debug) {
@@ -204,6 +222,10 @@ public class Config {
 
     public long getTimeoutInterval() {
         return timeoutInterval;
+    }
+
+    public TimeUnit getTimeoutTimeUnit() {
+        return timeoutTimeUnit;
     }
 
     public boolean isDebug() {

@@ -111,11 +111,6 @@ public class OkWebSocketAPI implements IOkWebSocketAPI {
     }
 
     @Override
-    public Observable<WebSocketInfo> get(String url, long timeout, TimeUnit timeUnit) {
-        return getWebSocketInfo(url, timeout, timeUnit);
-    }
-
-    @Override
     public Observable<Boolean> send(String url, String msg) {
         return Observable.create(new ObservableOnSubscribe<Boolean>() {
             @Override
@@ -331,11 +326,7 @@ public class OkWebSocketAPI implements IOkWebSocketAPI {
                 });
     }
 
-    public Observable<WebSocketInfo> getWebSocketInfo(String url) {
-        return getWebSocketInfo(url, 5, TimeUnit.SECONDS);
-    }
-
-    public synchronized Observable<WebSocketInfo> getWebSocketInfo(final String url, final long timeout, final TimeUnit timeUnit) {
+    public synchronized Observable<WebSocketInfo> getWebSocketInfo(final String url) {
         //先从缓存中取
         Observable<WebSocketInfo> observable = mObservableCacheMap.get(url);
         if (observable == null) {
@@ -535,9 +526,9 @@ public class OkWebSocketAPI implements IOkWebSocketAPI {
             sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new X509TrustManager[]{x509TrustManager}, new SecureRandom());
             mClient=new OkHttpClient.Builder()
-                    .readTimeout(config.getTimeoutInterval(), TimeUnit.SECONDS)//设置读取超时时间
-                    .writeTimeout(config.getTimeoutInterval(), TimeUnit.SECONDS)//设置写的超时时间
-                    .connectTimeout(config.getTimeoutInterval(), TimeUnit.SECONDS)//设置连接超时时间
+                    .readTimeout(config.getTimeoutInterval(), config.getTimeoutTimeUnit())//设置读取超时时间
+                    .writeTimeout(config.getTimeoutInterval(), config.getTimeoutTimeUnit())//设置写的超时时间
+                    .connectTimeout(config.getTimeoutInterval(), config.getTimeoutTimeUnit())//设置连接超时时间
                     .pingInterval(config.getPingInterval(),config.getPingIntervalTimeUnit())
                     .socketFactory(config.getSocketFactory())
                     .sslSocketFactory(sslSocketFactory,x509TrustManager).hostnameVerifier(trustManager)
