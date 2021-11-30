@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
                 .debug(false)
                 .pingInterval(10, TimeUnit.SECONDS)
                 .reconnectInterval(10, TimeUnit.SECONDS)
-                .reconnectInterval(10, TimeUnit.SECONDS)
                 .build());
 
         findViewById(R.id.setup_btn).setOnClickListener(new View.OnClickListener() {

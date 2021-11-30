@@ -96,8 +96,9 @@ public class Config {
             return this;
         }
 
-        public void isAutoReconnect(boolean isAutoReconnect) {
+        public Builder isAutoReconnect(boolean isAutoReconnect) {
             this.isAutoReconnect = isAutoReconnect;
+            return this;
         }
 
         public Builder reconnectInterval(long reconnectInterval, TimeUnit reconnectIntervalTimeUnit) {
@@ -110,11 +111,12 @@ public class Config {
             return this;
         }
 
-        public void isDefaultHeartBeat(boolean defaultHeartBeat) {
+        public Builder isDefaultHeartBeat(boolean defaultHeartBeat) {
             isDefaultHeartBeat = defaultHeartBeat;
             if(isDefaultHeartBeat){
                 pingInterval=30;
             }
+            return this;
         }
 
         public Builder pingInterval(long pingInterval,TimeUnit pingIntervalTimeUnit) {
