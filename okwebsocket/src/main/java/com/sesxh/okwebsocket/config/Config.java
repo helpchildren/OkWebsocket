@@ -7,6 +7,7 @@ import com.sesxh.okwebsocket.ssl.SSLManager;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -22,8 +23,10 @@ public class Config {
 
     private Context context;
     private OkHttpClient client;
+    private SocketFactory socketFactory;
     private SSLSocketFactory sslSocketFactory;
     private HostnameVerifier trustManager;
+    private boolean isAutoReconnect;
     private TimeUnit reconnectIntervalTimeUnit;
     private long reconnectInterval;
     private TimeUnit pingIntervalTimeUnit;
@@ -37,8 +40,10 @@ public class Config {
     public Config(Builder builder) {
         this.context=builder.context;
         this.client=builder.client;
+        this.socketFactory=builder.socketFactory;
         this.sslSocketFactory=builder.sslSocketFactory;
         this.trustManager=builder.trustManager;
+        this.isAutoReconnect=builder.isAutoReconnect;
         this.reconnectIntervalTimeUnit=builder.reconnectIntervalTimeUnit;
         this.reconnectInterval=builder.reconnectInterval;
         this.pingInterval=builder.pingInterval;
@@ -51,11 +56,14 @@ public class Config {
     public static class Builder{
         private Context context;
         private OkHttpClient client;
+        private SocketFactory socketFactory;
         private SSLSocketFactory sslSocketFactory;
         private HostnameVerifier trustManager;
-        private long reconnectInterval=2;//重连间隔时间
+        private boolean isAutoReconnect = true;//是否需要自动重连
+        private long reconnectInterval=10;//重连间隔时间
         private TimeUnit reconnectIntervalTimeUnit=TimeUnit.SECONDS;// 重连间隔时间单位
-        private long pingInterval=0;//心跳间隔时间
+        private boolean isDefaultHeartBeat;//是否使用默认心跳
+        private long pingInterval;//心跳间隔时间
         private TimeUnit pingIntervalTimeUnit=TimeUnit.SECONDS;// 心跳间隔时间单位
         private long timeoutInterval=10;//超时时间
         private boolean debug=false;// 是否是开发模式
@@ -73,6 +81,11 @@ public class Config {
             return this;
         }
 
+        public Builder socketFactory(SocketFactory socketFactory) {
+            this.socketFactory = socketFactory;
+            return this;
+        }
+
         public Builder sslSocketFactory(SSLSocketFactory sslSocketFactory) {
             this.sslSocketFactory = sslSocketFactory;
             return this;
@@ -83,15 +96,25 @@ public class Config {
             return this;
         }
 
+        public void isAutoReconnect(boolean isAutoReconnect) {
+            this.isAutoReconnect = isAutoReconnect;
+        }
 
-        public Builder reconnectInterval(long reconnectInterval,TimeUnit reconnectIntervalTimeUnit) {
-            if(reconnectInterval!=0) {
+        public Builder reconnectInterval(long reconnectInterval, TimeUnit reconnectIntervalTimeUnit) {
+            if(reconnectInterval>0) {
                 this.reconnectInterval = reconnectInterval;
             }
             if(reconnectIntervalTimeUnit!=null) {
                 this.reconnectIntervalTimeUnit = reconnectIntervalTimeUnit;
             }
             return this;
+        }
+
+        public void isDefaultHeartBeat(boolean defaultHeartBeat) {
+            isDefaultHeartBeat = defaultHeartBeat;
+            if(isDefaultHeartBeat){
+                pingInterval=30;
+            }
         }
 
         public Builder pingInterval(long pingInterval,TimeUnit pingIntervalTimeUnit) {
@@ -145,12 +168,20 @@ public class Config {
         return client;
     }
 
+    public SocketFactory getSocketFactory() {
+        return socketFactory==null?SocketFactory.getDefault():socketFactory;
+    }
+
     public SSLSocketFactory getSslSocketFactory() {
         return sslSocketFactory;
     }
 
     public HostnameVerifier getTrustManager() {
         return trustManager;
+    }
+
+    public boolean isAutoReconnect() {
+        return isAutoReconnect;
     }
 
     public TimeUnit getReconnectIntervalTimeUnit() {
